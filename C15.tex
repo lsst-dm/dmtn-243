@@ -9,8 +9,9 @@
 \markboth{Mueller et al.}{Qserv Distributed Petascale Database}
 
 \begin{document}
-%\ssindex{FOOBAR!conference!ADASS 2022}
-%\ssindex{FOOBAR!organisations!ASP}
+%\ssindex{LSST}
+%\ssindex{observatories!ground-based!LSST}
+%\ssindex{observatories!ground-based!Rubin}
 
 \title{Qserv: A Distributed Petascale Database for the LSST Catalogs}
 
@@ -24,7 +25,14 @@ basic design and operating principles of Qserv, and provide some updates on rece
 
 \section{Introduction}
 
-The Legacy Survey of Space and Time \citep{2019ApJ...873..111I} is ...
+The Legacy Survey of Space and Time \citep{2019ApJ...873..111I} is a "deep fast wide" optical/near-IR survey
+of half the sky in \emph{ugrizy} bands to \emph{r} 27.5 (36\,nJy) based on 825 visits over a 10-year period,
+to be carried out by the Vera C.\ Rubin Observatory in Chile.
+
+The astronomical catalogs to be produced by the survey are notionally described in \citet{LSE-163}, and the
+corresponding database schema is described in \citet{LDM-153}.  By the 10th year of the survey, the catalog
+database is expected to run to approximately 60 trillion rows, requiring more than 10 petabytes of storage
+without consideration of replication or indices.
 
 \acknowledgements This material or work is supported in part by the National Science Foundation through
 Cooperative Agreement AST-1258333 and Cooperative Support Agreement AST1836783 managed by the Association of
