@@ -1,3 +1,6 @@
+C15.pdf
+__pycache__/
+
 *.aux
 *.bbl
 *.blg
@@ -7,4 +10,3 @@
 *.out
 *.xdv
 *.dvi
-*.pdf
