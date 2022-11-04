@@ -279,7 +279,7 @@ import TexScanner
 #  used by the various utility scripts used in the editing process for the
 #  proceedings.)
 
-__AdassConference__ = "XXIX"
+__AdassConference__ = "XXXII"
 
 __AdassEditors__    = "Pizzo,~R. and Deul,~E. and Mol,~J. and de Plaa,~J. and Verkouter,~H. and Williams,~R."
 
@@ -956,12 +956,12 @@ def VerifyEps (Paper,TexFileName = "",Problems = None,Warnings = None) :
    #  going to be included when the .tex file refers to the file.
    
    def CalledFromWalk(FileList,DirPath,Namelist) :
-      if (DirPath.find("__MACOSX") < 0) :
+      if (DirPath.find("__MACOSX") < 0) and (DirPath.find("lsst-texmf") < 0):
          for Name in Namelist :
             Path = os.path.join(DirPath,Name)
             if (Path.startswith("./")) : Path = Path[2:]
             FileList.append(Path)
-   
+
    ReturnOK = True
    
    BatchMode = False
@@ -1014,6 +1014,7 @@ def VerifyEps (Paper,TexFileName = "",Problems = None,Warnings = None) :
       FileList = []
       for Details in os.walk('.') :
           CalledFromWalk(FileList,Details[0],Details[2])
+      print(FileList)
 
       #  First, simply list all the graphics files specified by the .tex file.
       
@@ -3555,11 +3556,13 @@ def CheckPaperName(Paper,Problems) :
    #  This has been the convention now for both Trieste 2016 and Santiago
    #  2018.
    
-   TriestePosters = True
+   TriestePosters = False
+   CapeTownPosters = False
+   VictoriaNames = True
    
    #  Disable the use of 'X' as a prefix.
    
-   XAllowed = False
+   XAllowed = FALSE
    
    #  Some intital checks on the leading digit, which should be O for Oral,
    #  I for Invited (also oral), B for BoF, F for Focus Demo, 'D' for
@@ -3570,10 +3573,9 @@ def CheckPaperName(Paper,Problems) :
       Problem = "Paper name supplied is blank"
       Problems.append(Problem)
       ValidSoFar = False
-   
    if (ValidSoFar) :
       Letter = Paper[0]
-      if (not Letter in "IOBFPDT") :
+      if (not Letter in ("IOBFPDTH" if not CapeTownPosters else "IOBFXDTH")) :
          if (Letter == 'X' and XAllowed) :
             Problems.append(
                "It seems that the paper ID could not be determined from the")
@@ -3616,9 +3618,8 @@ def CheckPaperName(Paper,Problems) :
                Problems.append(Problem)
                ValidSoFar = False
                break
-
-      if (Letter == 'P' and not TriestePosters) :
       
+      if (Letter == ('X' if CapeTownPosters else 'P') and not TriestePosters) :
          #  This section checks for a valid poster number using the style in
          #  use up to Trieste. This requires a poster number to be a 3 digit
          #  number, with leading zeros if necessary.
@@ -3645,7 +3646,7 @@ def CheckPaperName(Paper,Problems) :
                ValidSoFar = False
 
       if (Letter == 'I' or Letter == 'O' or \
-                                   (Letter == 'P' and TriestePosters)) :
+                                   (Letter == ('X' if CapeTownPosters else 'P') and TriestePosters)) :
          
          #  Oral presentation numbers (and posters using the Trieste convention)
          #  have the form S-N where S is the session and N the number. Go
@@ -3656,9 +3657,11 @@ def CheckPaperName(Paper,Problems) :
          N = 0
          Session = True
          Leading = True
+         if CapeTownPosters and len(Number) != 3:
+             Problem = "PID number should be 3 digit and should have leading zeros if needed"
          for Char in Number :
             if (Leading) :
-               if (Char == '0') :
+               if (Char == '0' and not CapeTownPosters) :
                   if (Session) :
                      Problem = "Session number should not have leading zeros"
                   else :
@@ -3694,7 +3697,7 @@ def CheckPaperName(Paper,Problems) :
             else :
                N = N * 10 + Value
          if (ValidSoFar) :
-            if (S == 0 or N == 0) :
+            if (S == 0 or N == 0) and not CapeTownPosters:
                Problem = "Session or paper number cannot be zero"
                Problems.append(Problem)
                ValidSoFar = False
