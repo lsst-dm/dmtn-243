@@ -4,13 +4,15 @@
    :target: https://github.com/lsst-dm/dmtn-243/actions/
 
 #############################################################
-Qserv: A distributed petascale database for the LSST catalogs
+Qserv: A Distributed Petascale Database for the LSST Catalogs
 #############################################################
 
 DMTN-243
 ========
 
-Qserv is a distributed, shared-nothing, SQL database system being developed by the Vera Rubin Observatory to host the multi-petabyte astronomical catalogs that will be produced by the LSST survey. Here we sketch the basic design and operating principles of Qserv, and provide some updates on recent developments.
+Qserv is a distributed, shared-nothing, SQL database system being developed by the Vera Rubin Observatory to
+host the multi-petabyte astronomical catalogs that will be produced by the LSST survey. Here we sketch the
+basic design and operating principles of Qserv, and provide some updates on recent developments.
 
 Links
 =====
@@ -34,27 +36,12 @@ Clean built files::
 
     make clean
 
-Updating acronyms
------------------
-
-A table of the technote's acronyms and their definitions are maintained in the `acronyms.tex` file, which is committed as part of this repository.
-To update the acronyms table in ``acronyms.tex``::
-
-    make acronyms.tex
-
-*Note: this command requires that this repository was cloned as a submodule.*
-
-The acronyms discovery code scans the LaTeX source for probable acronyms.
-You can ensure that certain strings aren't treated as acronyms by adding them to the `skipacronyms.txt <./skipacronyms.txt>`_ file.
-
-The lsst-texmf_ repository centrally maintains definitions for LSST acronyms.
-You can also add new acronym definitions, or override the definitions of acronyms, by editing the `myacronyms.txt <./myacronyms.txt>`_ file.
-
 Updating lsst-texmf
 -------------------
 
-`lsst-texmf`_ includes BibTeX files, the ``lsstdoc`` class file, and acronym definitions, among other essential tooling for LSST's LaTeX documentation projects.
-To update to a newer version of `lsst-texmf`_, you can update the submodule in this repository::
+`lsst-texmf`_ includes BibTeX files, the ``lsstdoc`` class file, and acronym definitions, among other
+essential tooling for LSST's LaTeX documentation projects. To update to a newer version of `lsst-texmf`_, you
+can update the submodule in this repository::
 
    git submodule update --init --recursive
 
