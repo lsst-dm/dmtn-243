@@ -1014,7 +1014,6 @@ def VerifyEps (Paper,TexFileName = "",Problems = None,Warnings = None) :
       FileList = []
       for Details in os.walk('.') :
           CalledFromWalk(FileList,Details[0],Details[2])
-      print(FileList)
 
       #  First, simply list all the graphics files specified by the .tex file.
       
