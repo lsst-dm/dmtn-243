@@ -1,3 +1,6 @@
+databases
+    petascale
+
 observatories
     ground-based
         Rubin

@@ -23,3 +23,7 @@ clean:
 	rm -f $(DOCNAME).dvi
 	rm -f $(DOCNAME).pdf
 	rm -f authors.tex
+
+.PHONY: check
+check:
+	python3 PaperCheck.py $(DOCNAME) Mueller
