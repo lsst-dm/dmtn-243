@@ -38,7 +38,7 @@ before considerations for replication, indices, or other overheads.
 At the outset of construction, the project could not identify a mature database product capable of operating
 at these scales while also meeting project requirements for robust spherical geometry, predictable query
 response under heavy concurrent load, platform/hardware affordability, and open source licensing.  The Rubin
-Observatory Data Management team thus embarked on the design and implementation of Qserv.
+Observatory thus embarked on the design and implementation of Qserv.
 
 \section{The Qserv Approach}
 
@@ -72,11 +72,40 @@ enables adding nodes to a Qserv cluster or draining nodes for maintenance as onl
 
 \subsection{Shared Scans}
 
-...
+Shared scans are a key component of the Qserv architecture to enable predictable query throughput on fixed
+hardware under heavily concurrent loads.  As partial queries arrive at worker nodes, they are held and grouped
+by involved partition(s).  Each node scans its local partitions in a cyclic, coordinated fashion. When a scan
+visits a partition, its table backing files are locked into memory and all batched queries involving that
+partition are executed.  The tables are then released and the scan proceeds on to the next local partition.
 
-\subsection{Off-the-shelf, Open Source Components}
+Multiple scan queues per node are supported, to accommodate scans that execute at significantly different
+speeds due to the different amounts of I/O required.  In this way, time-consuming I/O intensive scans need not
+hold up scans of other tables that could otherwise proceed more quickly.  Some capacity at each node is also
+reserved to be able to quickly answer ad-hoc, non-scan queries to partitions on that node.
 
-...
+Partial queries may join a scan queue in any phase as they arrive at a node, and remain on the scan until all
+involved partitions on that node are visited.
+
+\subsection{Designed for Purpose}
+
+Qserv, while broadly general purpose, has been specifically designed to meet the LSST catalog use case.  This
+has allowed leverage of some significant simplifications to keep complexity low and to keep the project
+feasible for a small development team.  For example: the LSST catalogs are to be released annually and are a
+read-only product; thus Qserv did not need to address SQL UPDATE semantics nor encompass a full transactional
+model.
+
+The astronomical use-case demands robust spherical geometry within the database.  Qserv has addressed
+this by providing a library of spherical geometry UDFs which are made available for use of partial queries on
+the back-end worker nodes.
+
+Qserv has leveraged mature, open source, off-the-shelf components wherever possible; these include MariaDB,
+the XRootD distributed file system, and Google protobufs to name a few.
+
+Qserv is fully containerized, and has a Kubernetes operator to facilitate deployment on Kubernetes either
+on-prem or in the commodity cloud.  We have found about a 15\% performance impact when running with network
+storage on the Google cloud compared to running with locally attached storage on an on-prem cluster.
+
+\section{Performance Targets and Sizing}
 
 \acknowledgements This material or work is supported in part by the National Science Foundation through
 Cooperative Agreement AST-1258333 and Cooperative Support Agreement AST1836783 managed by the Association of
