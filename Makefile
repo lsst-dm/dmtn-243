@@ -1,11 +1,9 @@
 DOCNAME = C15
 
-tex = $(wildcard *.tex)
-
 export TEXMFHOME = lsst-texmf/texmf
 
 #asp tex is a bit odd so latexml fails ..
-$(DOCNAME).pdf: $(tex) authors.tex $(DOCNAME).bib
+$(DOCNAME).pdf: $(DOCNAME).tex $(DOCNAME).bib
 	latex $(DOCNAME)
 	bibtex $(DOCNAME)
 	latex $(DOCNAME)
