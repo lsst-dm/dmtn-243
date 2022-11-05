@@ -107,6 +107,37 @@ storage on the Google cloud compared to running with locally attached storage on
 
 \section{Performance Targets and Sizing}
 
+Performance targets for Qserv in the context of LSST have been established as follows.  Under a combined,
+sustained load of 100 concurrent small ad-hoc queries and 50 concurrent full scans:
+\[
+{\renewcommand{\arraystretch}{1.5}\begin{array}{ll}
+  \parbox{9cm}{Retrieve common attributes of an object, or all objects within a small area of the sky}
+    & \mbox{< 10 seconds} \\
+  \mbox{Scan entire sky (billions of objects)}
+    & \mbox{$\approx{}$1 hour} \\
+  \mbox{Deeper analysis (incl. object extended attribute BLOBs)}
+    & \mbox{$\approx{}$8 hours} \\
+  \mbox{Detection or forced photometry full scans}
+    & \mbox{$\approx{}$12 hours} \\
+\end{array}}
+\]
+
+Since Qserv is principally I/O limited, a cluster is sized according to target full-scan times, using the
+following simple relations:
+
+\[
+    \frac{\text{table size(s)}}{\text{sustained I/O rate} * \text{workers}} = \text{target scan time}
+\]
+
+\[
+    \frac{(\text{table size(s)} + \text{overlap} + \text{local indices}) * \text{replication}}
+    {\text{workers}} = \text{local worker storage} \\
+\]
+
+For LSST, with consideration of the latest data sizing models \citep{DMTN-135}, this works out to a cluster of
+approximately 100 worker nodes for year 1 of the survey, peaking at approximately 450 worker nodes in year 6,
+with approximately 45 TiB of local storage attached to each node.
+
 \acknowledgements This material or work is supported in part by the National Science Foundation through
 Cooperative Agreement AST-1258333 and Cooperative Support Agreement AST1836783 managed by the Association of
 Universities for Research in Astronomy (AURA), and the Department of Energy under Contract No.
