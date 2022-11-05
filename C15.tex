@@ -6,7 +6,7 @@
 
 \bibliographystyle{asp2014}
 
-\markboth{Mueller et al.}{Qserv Distributed Petascale Database}
+\markboth{Mueller et al.}{Qserv: A Distributed Petascale Database}
 
 \begin{document}
 %\ssindex{LSST}
@@ -60,21 +60,23 @@ Observatory thus embarked on the design and implementation of Qserv.
 \section{The Qserv Approach}
 
 The evolution and progress of Qserv has been previously reported in \citet{2006SPIE.6270E..0RB},
-\citet{2011Wang:2011:QDS:2063348.2063364}, and \citet{LDM-135}.  Principal design elements are as follows:
+\citet{2011Wang:2011:QDS:2063348.2063364}, and \citet{LDM-135}.  Qserv's principal design elements are as
+follows:
 
 \subsection{Distributed and Parallel}
 
 Qserv is designed as a parallel database, where catalog data is spatially partitioned and distributed
 uniformly over a collection of shared-nothing back-end nodes.  Queries are handled in a "map/reduce" paradigm:
 after arriving at a SQL proxy, queries are analyzed for spatial coverage and rewritten into a collection of
-supporting partial queries which are then distributed to involved back-end nodes for execution ("map"). The
-results of these partial queries are subsequently returned to the proxy node where they are aggregated and any
-necessary summary statistics computed ("reduce"); results are then returned to the user.
+supporting partial queries which are then distributed to involved back-end nodes for execution (the "map"
+phase). The results of these partial queries are subsequently returned to the proxy node where they are
+aggregated and any necessary summary statistics computed (the "reduce" phase). Results are then returned to
+the user.
 
 \subsection{Partitioning and Replication}
 
-Qserv divides data into spatial partitions of roughly the same area.  Since partitions are small with respect
-to higher-density areas of the survey and spread over back-end using a non-area-based scheme,
+Qserv divides data into spatial partitions of roughly equal area.  Since partitions are small with respect to
+higher-density areas of the survey, and spread over back-end nodes using a non-area-based scheme,
 density-differential-induced skew is averaged out among the nodes.
 
 Qserv additionally stores a precomputed amount of overlapping data from spatially adjacent partitions
@@ -82,18 +84,20 @@ alongside each partition.  Using this data, spatial joins can be computed correc
 distance without needing data from other partitions that may be located on other nodes.
 
 Data partitions are dynamically replicated across back-end nodes, for resilience and high-availability.  If a
-node becomes unavailable, Qserv is capable of re-dispatching in-flight partial queries involving partitions on
-that node toward other available partition replicas transparently to the user.  Partitions that become
-under-represented will be re-replicated and the cluster re-balanced in the background.  The same facility
-enables adding nodes to a Qserv cluster or draining nodes for maintenance as online operations.
+node becomes unavailable, Qserv is capable of transparently re-dispatching in-flight partial queries involving
+partitions on that node toward other available partition replicas.  Partitions that become under-represented
+will are re-replicated and the cluster is periodically re-balanced in the background.  This same facility
+enables the addition of nodes to a Qserv cluster or the draining of nodes for maintenance as online
+operations.
 
 \subsection{Shared Scans}
 
-Shared scans are a key component of the Qserv architecture to enable predictable query throughput on fixed
+Shared scans are a key component of the Qserv architecture and enable predictable query throughput on fixed
 hardware under heavily concurrent loads.  As partial queries arrive at worker nodes, they are held and grouped
 by involved partition(s).  Each node scans its local partitions in a cyclic, coordinated fashion. When a scan
-visits a partition, its table backing files are locked into memory and all batched queries involving that
-partition are executed.  The tables are then released and the scan proceeds on to the next local partition.
+visits a partition, its table backing files are locked into memory and all pending batched queries involving
+that partition are executed.  The tables are then released and the scan proceeds to the next local
+partition.
 
 Multiple scan queues per node are supported, to accommodate scans that execute at significantly different
 speeds due to the different amounts of I/O required.  In this way, time-consuming I/O intensive scans need not
@@ -101,19 +105,19 @@ hold up scans of other tables that could otherwise proceed more quickly.  Some c
 reserved to be able to quickly answer ad-hoc, non-scan queries to partitions on that node.
 
 Partial queries may join a scan queue in any phase as they arrive at a node, and remain on the scan until all
-involved partitions on that node are visited.
+involved partitions for that query on that node have been visited.
 
 \subsection{Designed for Purpose}
 
-Qserv, while broadly general purpose, has been specifically designed to meet the LSST catalog use case.  This
+Qserv, while broadly general purpose, has been specifically designed to meet the LSST catalog use-case. This
 has allowed leverage of some significant simplifications to keep complexity low and to keep the project
 feasible for a small development team.  For example: the LSST catalogs are to be released annually and are a
 read-only product; thus Qserv did not need to address SQL UPDATE semantics nor encompass a full transactional
 model.
 
-Astronomical use demands robust spherical geometry within the database.  Qserv has addressed this by providing
-a library of spherical geometry UDFs which are made available for use of partial queries on the back-end
-worker nodes.
+Astronomical use demands robust spherical geometry within the database; Qserv has addressed this by providing
+a library of precise spherical geometry UDFs which are made available for use of partial queries on the
+back-end worker nodes.
 
 Qserv has leveraged mature, open source, off-the-shelf components wherever possible; these include MariaDB,
 the XRootD distributed file system, and Google protobufs to name a few.
@@ -151,9 +155,9 @@ following simple relations:
     {\text{workers}} = \text{local worker storage} \\
 \]
 
-For LSST, with consideration of the latest data sizing models \citep{DMTN-135}, this works out to a cluster of
-approximately 100 worker nodes for year 1 of the survey, peaking at approximately 450 worker nodes in year 6,
-with approximately 45 TiB of local storage attached to each node.
+For LSST, with consideration of the latest data sizing models \citep{DMTN-135}, this works out to a need for a
+cluster of approximately 100 worker nodes for year 1 of the survey, peaking at approximately 450 worker nodes
+in year 6, with approximately 45 TiB of local storage attached to each node.
 
 \acknowledgements This material or work is supported in part by the National Science Foundation through
 Cooperative Agreement AST-1258333 and Cooperative Support Agreement AST1836783 managed by the Association of
