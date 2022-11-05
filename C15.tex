@@ -43,9 +43,9 @@ basic design and operating principles of Qserv, and provide some updates on rece
 
 \section{Introduction}
 
-The Legacy Survey of Space and Time \citep{2019ApJ...873..111I} is a "deep fast wide" optical/near-IR survey
-of half the sky in \emph{ugrizy} bands to \emph{r} 27.5 (36\,nJy) based on 825 visits over a 10-year period,
-to be carried out by the Vera C.\ Rubin Observatory in Chile.
+The Legacy Survey of Space and Time \citep{2019ApJ...873..111I} is a "deep fast wide" optical and near-IR
+survey of half the sky in \emph{ugrizy} bands to \emph{r} 27.5 (36\,nJy) based on 825 visits over a 10-year
+period, to be carried out by the Vera C.\ Rubin Observatory in Chile.
 
 The astronomical catalogs to be produced by the survey are notionally described in \citet{LSE-163}, and the
 corresponding database schema is described in \citet{LDM-153}.  By the 10th year of the survey, the catalog
@@ -111,9 +111,9 @@ feasible for a small development team.  For example: the LSST catalogs are to be
 read-only product; thus Qserv did not need to address SQL UPDATE semantics nor encompass a full transactional
 model.
 
-The astronomical use-case demands robust spherical geometry within the database.  Qserv has addressed
-this by providing a library of spherical geometry UDFs which are made available for use of partial queries on
-the back-end worker nodes.
+Astronomical use demands robust spherical geometry within the database.  Qserv has addressed this by providing
+a library of spherical geometry UDFs which are made available for use of partial queries on the back-end
+worker nodes.
 
 Qserv has leveraged mature, open source, off-the-shelf components wherever possible; these include MariaDB,
 the XRootD distributed file system, and Google protobufs to name a few.
