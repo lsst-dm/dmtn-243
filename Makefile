@@ -24,13 +24,11 @@ clean:
 check:
 	python3 PaperCheck.py C15 Mueller
 
-PID_URL   = "https://www.canfar.net/storage/vault/list/adass2022/upload/C15"
-TAR_FILE  = C15.tar.gz
+FILESTEX  = C15.tex C15.bib C15_f1.eps C15_f2.eps makedefs newKeywords.txt
 FILESPDF  = C15.pdf copyrightForm_C15_Mueller.pdf
-FILESTEX  = C15.tex C15.bib makedefs newKeywords.txt
 FILES4AR  = $(FILESTEX) $(FILESPDF)
+TAR_FILE  = C15.tar.gz
 
 .PHONY: tar
 tar: $(FILES4AR)
 	tar zcf $(TAR_FILE) $(FILES4AR)
-	@echo "Login and upload $(TAR_FILE) at $(PID_URL)"
