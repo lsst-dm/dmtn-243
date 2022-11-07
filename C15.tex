@@ -93,20 +93,20 @@ without needing data from other partitions that may be located on other nodes.
 Data partitions are dynamically replicated across back-end nodes for resilience and high-availability.  If a
 node becomes unavailable, Qserv is capable of transparently re-dispatching in-flight partial queries involving
 partitions on that node toward other available partition replicas.  Partitions that become under-represented
-will are re-replicated and the cluster is periodically re-balanced in the background.  This same facility
-enables the addition of nodes to a Qserv cluster or the draining of nodes for maintenance as online
-operations.
+are re-replicated and the cluster is periodically re-balanced in the background.  This same facility enables
+the addition of nodes to a Qserv cluster or the draining of nodes for maintenance as online operations.
 
 \subsection{Shared Scans}
 
 Shared scans are a key component of the Qserv architecture and enable predictable query throughput on fixed
 hardware under heavily concurrent loads.  As partial queries arrive at worker nodes, they are held and grouped
-by involved partition(s).  Each node scans its local partitions in a cyclic, coordinated fashion. When a scan
-visits a partition, its table backing files are locked into memory and all pending batched queries involving
-that partition are executed.  The tables are then released and the scan proceeds to the next local partition.
+by involved partition(s).  Each node scans its local partitions in a cyclic and coordinated fashion. When a
+scan visits a partition, its table backing files are locked into memory and all pending batched queries
+involving that partition are executed.  The tables are then released and the scan proceeds to the next local
+partition.
 
-Multiple scan queues per node are supported, to accommodate scans that execute at significantly different
-speeds due to the different amounts of I/O required.  In this way, time-consuming I/O intensive scans need not
+Multiple scan queues per node are supported to accommodate scans that execute at significantly different
+speeds due to different amounts of I/O required.  In this way, time-consuming I/O intensive scans need not
 hold up scans of other tables that could otherwise proceed more quickly.  Some capacity at each node is also
 reserved to be able to quickly answer ad-hoc, non-scan queries to partitions on that node.
 
