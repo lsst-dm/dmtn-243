@@ -11,3 +11,5 @@ __pycache__/
 *.xdv
 *.dvi
 *.tar.gz
+
+authors.tex
