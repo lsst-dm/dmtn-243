@@ -3,4 +3,4 @@ P = C15
 V = 1
 A = Mueller
 E = fritzm@slac.stanford.edu
-#FIGS = C15_*.eps
+FIGS = C15_*.eps
