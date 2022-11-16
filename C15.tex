@@ -16,9 +16,10 @@
 
 \title{Qserv: A Distributed Petascale Database for the LSST Catalogs}
 
-\author{Fritz~Mueller,$^1$ Igor~Gaponenko,$^1$ John~Gates,$^1$ Andrew~Hanushevsky,$^1$ Fabrice~Jammes,$^2$ Kian-Tat~Lim,$^1$ and Andrei~Salnikov$^1$}
+\author{Fritz~Mueller,$^1$ Igor~Gaponenko,$^1$ John~Gates,$^1$ Andrew~Hanushevsky,$^1$ Fabrice~Jammes,$^2$ Kian-Tat~Lim,$^1$ Andrei~Salnikov,$^1$ and Colin~T.~Slater$^3$}
 \affil{$^1$SLAC National Accelerator Laboratory,  2575 Sand Hill Rd., Menlo Park, CA 94025, USA}
 \affil{$^2$Universit\'e Clermont Auvergne, CNRS$/$IN2P3, Laboratoire de Physique de Clermont, F-63000 Clermont-Ferrand, France}
+\affil{$^3$University of Washington, Dept.\ of Astronomy, Box 351580, Seattle, WA 98195, USA}
 \paperauthor{Fritz~Mueller}{}{0000-0002-7061-4644}{SLAC National Accelerator Laboratory}{}{Menlo Park}{CA}{94025}{USA}
 \paperauthor{Igor~Gaponenko}{}{}{SLAC National Accelerator Laboratory}{}{Menlo Park}{CA}{94025}{USA}
 \paperauthor{John~Gates}{}{}{SLAC National Accelerator Laboratory}{}{Menlo Park}{CA}{94025}{USA}
@@ -26,6 +27,7 @@
 \paperauthor{Fabrice~Jammes}{}{}{Universit\'e Clermont Auvergne}{}{Laboratoire de Physique de Clermont}{F-63000}{Clermont-Ferrand}{France}
 \paperauthor{Kian-Tat~Lim}{}{0000-0002-6338-6516}{SLAC National Accelerator Laboratory}{}{Menlo Park}{CA}{94025}{USA}
 \paperauthor{Andrei~Salnikov}{}{0000-0002-3623-0161}{SLAC National Accelerator Laboratory}{}{Menlo Park}{CA}{94025}{USA}
+\paperauthor{Colin~T.~Slater}{}{0000-0002-0558-0521}{University of Washington}{}{Seattle}{WA}{98195}{USA}
 % Yes they said to have these index commands commented out.
 %\aindex{Mueller,~F.}
 %\aindex{Gaponenko,~I.}
@@ -34,6 +36,7 @@
 %\aindex{Jammes,~F.}
 %\aindex{Lim,~K.~T.}
 %\aindex{Salnikov,~A.}
+%\aindex{Slater,~C.~T.}
 
 \begin{abstract}
 Qserv is a distributed, shared-nothing, SQL database system being developed by the Vera Rubin Observatory to
@@ -43,7 +46,7 @@ basic design and operating principles of Qserv, and provide some updates on rece
 
 \section{Introduction}
 
-The Legacy Survey of Space and Time \citep{2019ApJ...873..111I} is a "deep fast wide" optical and near-IR
+The Legacy Survey of Space and Time \citep{2019ApJ...873..111I} is a ``deep fast wide'' optical and near-IR
 survey of half the sky in \emph{ugrizy} bands to \emph{r} 27.5 (36\,nJy) based on 825 visits over a 10-year
 period, to be carried out by the Vera C.\ Rubin Observatory in Chile.
 
@@ -63,23 +66,24 @@ The evolution and progress of Qserv has been previously reported in \citet{2006S
 \citet{2011Wang:2011:QDS:2063348.2063364}, and \citet{LDM-135}.  Qserv's principal design elements are as
 follows:
 
-\subsection{Distributed and Parallel}
+\paragraph {Distributed and Parallel}
 
 Qserv is designed as a parallel database, where catalog data is spatially partitioned and distributed
-uniformly over a collection of shared-nothing back-end nodes.  Queries are handled in a "map/reduce" paradigm:
-after arriving at a SQL proxy, queries are analyzed for spatial coverage and rewritten into a collection of
-supporting partial queries which are then distributed to involved back-end nodes for execution ("map" phase).
-The results of these partial queries are subsequently returned to the proxy node where they are aggregated and
-any necessary summary statistics computed ("reduce" phase). Results are then returned to the user.
+uniformly over a collection of shared-nothing back-end nodes.  Queries are handled in a ``map/reduce''
+paradigm: after arriving at a SQL proxy, queries are analyzed for spatial coverage and rewritten into a
+collection of supporting per-partition queries which are then distributed to involved back-end nodes for
+execution (``map'' phase). The results of these per-partition queries are subsequently returned to the proxy
+node where they are aggregated and any necessary summary statistics computed (``reduce'' phase). Results are
+then returned to the user.
 
-\subsection{Partitioning and Replication}
+\paragraph{Partitioning and Replication}
 
 \begin{figure}[t]
   $\vcenter{\hbox{\includegraphics[width=0.48\textwidth]{C15_f1.eps}}}$
   \hfill
   $\vcenter{\hbox{\includegraphics[width=0.48\textwidth]{C15_f2.eps}}}$
   \caption{[Left] Qserv partitioning scheme: rings of declination plus polar caps; roughly equi-area.
-  [Right] Qserv "map/reduce" query processing.  Data is stationary on back-end nodes.}
+  [Right] Qserv ``map/reduce'' query processing.  Data is stationary on back-end nodes.}
 \end{figure}
 
 Qserv divides data into spatial partitions of roughly equal area.  Since partitions are small with respect to
@@ -91,29 +95,30 @@ alongside each partition.  Using this data, spatial joins can be computed correc
 without needing data from other partitions that may be located on other nodes.
 
 Data partitions are dynamically replicated across back-end nodes for resilience and high-availability.  If a
-node becomes unavailable, Qserv is capable of transparently re-dispatching in-flight partial queries involving
-partitions on that node toward other available partition replicas.  Partitions that become under-represented
-are re-replicated and the cluster is periodically re-balanced in the background.  This same facility enables
-the addition of nodes to a Qserv cluster or the draining of nodes for maintenance as online operations.
+node becomes unavailable, Qserv is capable of transparently re-dispatching in-flight per-partition queries
+involving partitions on that node toward other available partition replicas.  Partitions that become
+under-represented are re-replicated and the cluster is periodically re-balanced in the background.  This same
+facility enables the addition of nodes to a Qserv cluster or the draining of nodes for maintenance as online
+operations.
 
-\subsection{Shared Scans}
+\paragraph{Shared Scans}
 
 Shared scans are a key component of the Qserv architecture and enable predictable query throughput on fixed
-hardware under heavily concurrent loads.  As partial queries arrive at worker nodes, they are held and grouped
-by involved partition(s).  Each node scans its local partitions in a cyclic and coordinated fashion. When a
-scan visits a partition, its table backing files are locked into memory and all pending batched queries
-involving that partition are executed.  The tables are then released and the scan proceeds to the next local
-partition.
+hardware under heavily concurrent loads.  As per-partition queries arrive at worker nodes, they are held and
+grouped by involved partition(s).  Each node scans its local partitions in a cyclic and coordinated fashion.
+When a scan visits a partition its table backing files are locked into memory and all pending batched queries
+involving that partition are executed; these batched queries thus share I/O, thereby reducing the total I/O
+load. The tables are then released and the scan proceeds to the next local partition.
 
 Multiple scan queues per node are supported to accommodate scans that execute at significantly different
 speeds due to different amounts of I/O required.  In this way, time-consuming I/O intensive scans need not
 hold up scans of other tables that could otherwise proceed more quickly.  Some capacity at each node is also
 reserved to be able to quickly answer ad-hoc, non-scan queries to partitions on that node.
 
-Partial queries may join a scan queue in any phase as they arrive at a node, and remain on the scan until all
-involved partitions for that query on that node have been visited.
+Per-partition queries may join a scan queue in any phase as they arrive at a node, and remain on the scan
+until the involved partition has been visited.
 
-\subsection{Designed for Purpose}
+\paragraph{Designed for Purpose}
 
 Qserv, while broadly general purpose, has been specifically designed to meet the LSST catalog use-case. This
 has allowed leverage of some significant simplifications to keep complexity low and to keep the project
@@ -122,7 +127,7 @@ read-only product; thus Qserv does not need to address SQL UPDATE semantics nor 
 full transactional model.
 
 Astronomical use demands robust spherical geometry within the database; Qserv has addressed this by providing
-a library of precise spherical geometry UDFs which are made available for use of partial queries on the
+a library of precise spherical geometry UDFs which are made available for use of per-partition queries on the
 back-end worker nodes.
 
 Qserv has leveraged mature, open source, off-the-shelf components wherever possible; these include MariaDB,
@@ -161,9 +166,9 @@ following simple relations:
     {\text{workers}} = \text{local worker storage} \\
 \]
 
-For LSST, with consideration of the latest data sizing models \citep{DMTN-135}, this works out to a need for a
-cluster of approximately 100 worker nodes for year 1 of the survey, peaking at approximately 450 worker nodes
-in year 6, with approximately 45 TiB of local storage attached to each node.
+With consideration of the latest LSST data sizing models \citep{DMTN-135}, this works out to a cluster of
+approximately 100 worker nodes for year 1 of the survey, peaking at approximately 450 worker nodes in year 6,
+with approximately 45 TiB of local storage attached to each node.
 
 \section{Conclusions}
 
@@ -172,9 +177,9 @@ system has been successful to date in meeting the construction and commissioning
 Observatory serving pre-cursor datasets from clusters located at the National Center for Supercomputing
 Applications and in the Google cloud.  Most recently this has included support for a community of several
 hundred users as an integrated component of the Rubin Science Platform for Rubin Observatory's Data Preview
-0.2 \citep{RTN-041}. Additional clusters are now being commissioned at each of the LSST international data
-centers (USA, France, UK).  We hope the astronomical community may also find use for Qserv and its design
-ideas beyond the LSST survey.
+0.2 \citep{2021arXiv211115030O, RTN-041}. Additional clusters are now being commissioned at each of the LSST
+international data centers (USA, France, UK).  We hope the astronomical community may also find use for Qserv
+and its design ideas beyond the LSST survey.
 
 \acknowledgements This material or work is supported in part by the National Science Foundation through
 Cooperative Agreement AST-1258333 and Cooperative Support Agreement AST1836783 managed by the Association of
