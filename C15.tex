@@ -68,13 +68,12 @@ follows:
 
 \paragraph {Distributed and Parallel}
 
-Qserv is designed as a parallel database, where catalog data is spatially partitioned and distributed
-uniformly over a collection of shared-nothing back-end nodes.  Queries are handled in a ``map/reduce''
-paradigm: after arriving at a SQL proxy, queries are analyzed for spatial coverage and rewritten into a
-collection of supporting per-partition queries which are then distributed to involved back-end nodes for
-execution (``map'' phase). The results of these per-partition queries are subsequently returned to the proxy
-node where they are aggregated and any necessary summary statistics computed (``reduce'' phase). Results are
-then returned to the user.
+Qserv is a parallel database, where catalog data is spatially partitioned and distributed uniformly over a
+collection of shared-nothing back-end nodes.  Queries are handled in a ``map/reduce'' paradigm: after arriving
+at a SQL proxy, queries are analyzed for spatial coverage and rewritten into a collection of supporting
+per-partition queries which are then distributed to involved back-end nodes for execution (``map'' phase). The
+results of these per-partition queries are subsequently returned to the proxy node where they are aggregated
+and any necessary summary statistics computed (``reduce'' phase). Results are then returned to the user.
 
 \paragraph{Partitioning and Replication}
 
