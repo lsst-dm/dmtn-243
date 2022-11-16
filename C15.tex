@@ -106,17 +106,17 @@ operations.
 Shared scans are a key component of the Qserv architecture and enable predictable query throughput on fixed
 hardware under heavily concurrent loads.  As per-partition queries arrive at worker nodes, they are held and
 grouped by involved partition(s).  Each node scans its local partitions in a cyclic and coordinated fashion.
-When a scan visits a partition, its table backing files are locked into memory and all pending batched queries
-involving that partition are executed.  The tables are then released and the scan proceeds to the next local
-partition.
+When a scan visits a partition its table backing files are locked into memory and all pending batched queries
+involving that partition are executed; these batched queries thus share I/O, thereby reducing the total I/O
+load. The tables are then released and the scan proceeds to the next local partition.
 
 Multiple scan queues per node are supported to accommodate scans that execute at significantly different
 speeds due to different amounts of I/O required.  In this way, time-consuming I/O intensive scans need not
 hold up scans of other tables that could otherwise proceed more quickly.  Some capacity at each node is also
 reserved to be able to quickly answer ad-hoc, non-scan queries to partitions on that node.
 
-Per-partition queries may join a scan queue in any phase as they arrive at a node, and remain on the scan until all
-involved partitions for that query on that node have been visited.
+Per-partition queries may join a scan queue in any phase as they arrive at a node, and remain on the scan
+until the involved partition has been visited.
 
 \paragraph{Designed for Purpose}
 
